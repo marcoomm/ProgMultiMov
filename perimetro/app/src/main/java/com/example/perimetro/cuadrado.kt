@@ -18,7 +18,7 @@ class cuadrado : AppCompatActivity() {
         val bundle:Bundle ?= intent.extras
         val mensaje2 = bundle!!.getString("envio")
 
-        val solution = findViewById<EditText>(R.id.solution)
-
+        val perimetro = findViewById<EditText>(R.id.perimetro)
+        val area = findViewById<EditText>(R.id.area)
     }
 }
