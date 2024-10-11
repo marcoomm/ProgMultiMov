@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         var subTotal = edtPrecio.text.toString().toDouble()
         if(sRedondeo.isChecked){
-            subTotal = ceil(subTotal)
+            subTotal = ceil(subTotal*porcentaje)
         }
         txtTotal.setText(subTotal.toString())
 
