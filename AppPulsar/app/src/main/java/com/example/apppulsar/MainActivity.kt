@@ -23,6 +23,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -71,13 +75,18 @@ fun MiApp(){
 @Preview
 @Composable
 fun CrearCirculo(){
-    var acumuladorDinero = 0
+    var acumuladorDinero = remember {
+        mutableStateOf(0)
+    }
+    var acumuladorDinero2 by remember {
+        mutableStateOf(0)
+    }
     Card(modifier = Modifier
         .padding(10.dp)
         .size(105.dp)
         .clickable {
-            acumuladorDinero +=1
-            Log.d("Acumulador $acumuladorDinero", "contador:  $acumuladorDinero")
+            acumuladorDinero.value +=1
+            Log.d("Acumulador ${acumuladorDinero.value}", "contador:  $acumuladorDinero")
         },
         shape = CircleShape
     )
@@ -88,7 +97,7 @@ fun CrearCirculo(){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally)
         {
-            Text(text="Pulsar $acumuladorDinero", modifier = Modifier)
+            Text(text="Pulsar ${acumuladorDinero.value}", modifier = Modifier)
         }
     }
 }
