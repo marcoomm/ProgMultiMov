@@ -100,6 +100,7 @@ fun crearTarjetaVisita() {
 }
 
 fun Box() {
+    TODO("Not yet implemented")
 }
 
 @Preview
