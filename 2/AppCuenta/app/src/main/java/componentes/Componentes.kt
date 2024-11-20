@@ -21,30 +21,34 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun CajaTexto(
-    modifier : Modifier = Modifier,
-    valueState : MutableState<String>,
-    labelId : String,
-    enabled : Boolean,
-    isSingleLine : Boolean,
-    keyboardType : KeyboardType = KeyboardType.Number,
-    imeAction : ImeAction = ImeAction.Next,
+    modifier: Modifier = Modifier,
+    valueState: MutableState<String>,
+    labelId: String,
+    enabled: Boolean,
+    isSingleLine: Boolean,
+    keyboardType: KeyboardType = KeyboardType.Number,
+    imeAction: ImeAction = ImeAction.Next,
     onAction: KeyboardActions = KeyboardActions.Default
-){
-    OutlinedTextField(value = valueState.value, onValueChange = {valueState.value = it},
-        label = {Text(text=labelId)},
+) {
+    OutlinedTextField(
+        value = valueState.value,
+        onValueChange = { valueState.value = it },
+        label = { Text(text = labelId) },
         leadingIcon = { Icon(imageVector = Icons.Rounded.EuroSymbol,
-            contentDescription = "Icono de dinero")},
+                contentDescription = "Icono de dinero") },
         singleLine = isSingleLine,
         textStyle = TextStyle(fontSize = 18.sp,
             color = MaterialTheme.colorScheme.onBackground),
         modifier = modifier
-            .padding(bottom = 10.dp, start=10.dp, end = 10.dp),
-        enable = enabled,
-        KeyboardOptions = KeyboardOptions (keyboardType = keyboardType, imeAction = imeAction),
-        KeyboardActions =  onAction)
-
-
+            .padding(bottom = 10.dp, start = 10.dp, end = 10.dp),
+        enabled = enabled,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = imeAction),
+        keyboardActions = onAction
+    )
 }
+
 
 
 
