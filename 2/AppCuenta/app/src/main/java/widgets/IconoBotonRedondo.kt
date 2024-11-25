@@ -22,7 +22,7 @@ fun IconoBotonRedondo(
     imageVector: ImageVector,
     onClick: () -> Unit,
     tint: Color = Color.Black.copy(alpha = 0.8f),
-    backgroundColor: Color = MaterialTheme.colorScheme.onBackground,
+    backgroundColor: Color = MaterialTheme.colorScheme.background,
     elevation: Dp = 4.dp,
     contentDescription: String = "Icono de más o menos"
 ) {

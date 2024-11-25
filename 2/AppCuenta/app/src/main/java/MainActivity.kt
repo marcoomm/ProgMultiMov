@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +37,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.appcuenta.ui.theme.AppCuentaTheme
 import componentes.CajaTexto
+import utilidades.calcularPorcentajeTotal
+import utilidades.calcularTotalPorPersona
 import widgets.IconoBotonRedondo
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,9 +70,10 @@ fun MiApp(content: @Composable ()->Unit){
 
 @Preview
 @Composable
-fun TopCabecera(totalPorPersona: Double=0.0){
+fun TopCabecera(totalPorPersona: Double=200.0){
     Surface(modifier = Modifier
         .fillMaxWidth()
+        .padding(20.dp)
         .height(150.dp)
         .clip(shape= CircleShape.copy(all= CornerSize(12.dp))),
         color = Color(0xFFE9D7F7)
@@ -88,23 +94,26 @@ fun TopCabecera(totalPorPersona: Double=0.0){
 @Preview
 @Composable
 fun ContenidoPrincipal(){
-    FormularioCuenta() { cantidadCuenta ->
-        Log.d("Cantidad", "ContenidoPrincipal:${cantidadCuenta.toInt() * 100}")
+    Column(modifier = Modifier.padding(all = 12.dp)){
+        FormularioCuenta() { cantidadCuenta ->
+            Log.d("Cantidad", "ContenidoPrincipal:${cantidadCuenta.toInt() * 100}")
+        }
     }
 }
 
 @Composable
-private fun FormularioCuenta(modifier: Modifier=Modifier,
-                             onValChange: (String)->Unit) {
-    val totalCuenta = remember {
-        mutableStateOf("")
-    }
-
-    val estadoValido = remember(totalCuenta.value) {
-        totalCuenta.value.trim().isNotEmpty()
-    }
-
+private fun FormularioCuenta(modifier: Modifier = Modifier, onValChange: (String) -> Unit) {
+    val totalCuenta = remember { mutableStateOf("") }
+    val dividirPorComensal = remember { mutableStateOf(2) }
+    val estadoPosicionBarra = remember { mutableStateOf(0f) }
+    var valorPorcentaje = (estadoPosicionBarra.value * 100).toInt()
+    val totalPorPersona = remember { mutableStateOf(0.0) }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val estadoValido = totalCuenta.value.trim().isNotEmpty()
+
+    Math.round(estadoPosicionBarra.value*100)
+
+    TopCabecera(totalPorPersona = totalPorPersona.value)
 
     Surface(
         modifier = Modifier
@@ -113,51 +122,106 @@ private fun FormularioCuenta(modifier: Modifier=Modifier,
         shape = RoundedCornerShape(corner = CornerSize(8.dp)),
         border = BorderStroke(width = 2.dp, color = Color.LightGray)
     ) {
-        Column(modifier = Modifier.padding(6.dp),
+        Column(
+            modifier = Modifier.padding(6.dp),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start) {
-            CajaTexto(valueState = totalCuenta,
+            horizontalAlignment = Alignment.Start
+        ) {
+            CajaTexto(
+                valueState = totalCuenta,
                 labelId = "Introduce la cuenta",
                 enabled = true,
                 isSingleLine = true,
                 onAction = KeyboardActions {
-                    if (!estadoValido) return@KeyboardActions
-                    onValChange(totalCuenta.value.trim())
-                    keyboardController?.hide()
-                })
-            //if(estadoValido){
-                Row (modifier = Modifier.padding(3.dp),
-                    horizontalArrangement = Arrangement.Start){
-                    Text(text = "Escribiendo...",modifier = Modifier.align(
-                        alignment = Alignment.CenterVertically
-                    ))
-                    Spacer(modifier=Modifier.width(120.dp))
-                    Row(modifier = Modifier.padding(horizontal=3.dp),
-                        horizontalArrangement = Arrangement.End){
+                    if (estadoValido) {
+                        onValChange(totalCuenta.value.trim())
+                        keyboardController?.hide()
+                    }
+                }
+            )
+
+            if (estadoValido) {
+                Row(
+                    modifier = Modifier.padding(3.dp),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Text(text = "Dividir entre...", modifier = Modifier.align(Alignment.CenterVertically))
+                    Spacer(modifier = Modifier.width(120.dp))
+                    Row(modifier = Modifier.padding(horizontal = 3.dp), horizontalArrangement = Arrangement.End) {
                         IconoBotonRedondo(
                             imageVector = Icons.Default.Remove,
                             onClick = {
-                                Log.d("Icono","pulsado el menos")
+                                dividirPorComensal.value =
+                                    (dividirPorComensal.value - 1).coerceAtLeast(1)
+                                totalPorPersona.value = calcularTotalPorPersona(
+                                    totalCuenta = totalCuenta.value.toDouble(),
+                                    personas = dividirPorComensal.value,
+                                    valorPorcentaje = valorPorcentaje
+                                )
                             }
                         )
-                        Text(text = "2",
+                        Text(
+                            text = "${dividirPorComensal.value}",
                             modifier = Modifier.align(Alignment.CenterVertically)
-                                .padding(start=9.dp, end = 9.dp))
+                                .padding(start = 9.dp, end = 9.dp)
+                        )
                         IconoBotonRedondo(
                             imageVector = Icons.Default.Add,
                             onClick = {
-                                Log.d("Icono","pulsado el más")
+                                if (dividirPorComensal.value < 100) {
+                                    dividirPorComensal.value += 1
+                                    totalPorPersona.value = calcularTotalPorPersona(
+                                        totalCuenta = totalCuenta.value.toDouble(),
+                                        personas = dividirPorComensal.value,
+                                        valorPorcentaje = valorPorcentaje
+                                    )
+                                }
                             }
                         )
-
                     }
                 }
-            //}else{
-            //    Box(){}
-            //}
+
+                Row {
+                    Text(text = "Porcentaje de propina", modifier = Modifier.align(Alignment.CenterVertically))
+                    Spacer(modifier = Modifier.width(130.dp))
+                    Text(
+                        text = "${calcularPorcentajeTotal(totalCuenta.value.toDouble(), valorPorcentaje)}€",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "${valorPorcentaje}%")
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Slider(
+                        value = estadoPosicionBarra.value,
+                        onValueChange = { valorNuevo ->
+                            estadoPosicionBarra.value = valorNuevo
+                            valorPorcentaje=(estadoPosicionBarra.value*100).toInt()
+                            totalPorPersona.value = calcularTotalPorPersona(
+                                totalCuenta = totalCuenta.value.toDouble(),
+                                personas = dividirPorComensal.value,
+                                valorPorcentaje = valorPorcentaje
+                            )
+                        },
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                        steps = 100,
+                        onValueChangeFinished = { }
+                    )
+                }
+            } else {
+                Box {}
+            }
         }
     }
 }
+
+
+
 
 @Preview(showBackground = true)
 @Composable
